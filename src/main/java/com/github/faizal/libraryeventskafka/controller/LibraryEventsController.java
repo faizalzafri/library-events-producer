@@ -2,6 +2,7 @@ package com.github.faizal.libraryeventskafka.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.github.faizal.libraryeventskafka.domain.LibraryEvent;
+import com.github.faizal.libraryeventskafka.domain.LibraryEventType;
 import com.github.faizal.libraryeventskafka.producer.LibraryEventProducer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,7 @@ public class LibraryEventsController {
     public ResponseEntity<LibraryEvent> postLibraryEvent(@RequestBody LibraryEvent libraryEvent) throws JsonProcessingException {
 
         // invoke kaka producer
+        libraryEvent.setLibraryEventType(LibraryEventType.NEW);
         producer.sendLibraryEvent3(libraryEvent);
         return ResponseEntity.status(HttpStatus.CREATED).body(libraryEvent);
     }
@@ -37,4 +39,6 @@ public class LibraryEventsController {
         log.info("Result: {}", result.toString());
         return ResponseEntity.status(HttpStatus.CREATED).body(libraryEvent);
     }
+
+    //PUT ENDPOINT
 }
