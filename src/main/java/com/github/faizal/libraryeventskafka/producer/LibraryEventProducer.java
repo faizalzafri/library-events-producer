@@ -1,5 +1,6 @@
 package com.github.faizal.libraryeventskafka.producer;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.faizal.libraryeventskafka.domain.LibraryEvent;
 import lombok.SneakyThrows;
@@ -11,6 +12,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.concurrent.ListenableFuture;
 import org.springframework.util.concurrent.ListenableFutureCallback;
 
+import java.util.concurrent.ExecutionException;
+
 @Component
 @Slf4j
 public class LibraryEventProducer {
@@ -21,12 +24,9 @@ public class LibraryEventProducer {
     @Autowired
     private ObjectMapper mapper;
 
-    @SneakyThrows
-    public void sendLibraryEvent(LibraryEvent libraryEvent) {
-
+    public void sendLibraryEvent(LibraryEvent libraryEvent) throws JsonProcessingException {
         Integer key = libraryEvent.getLibraryEventId();
         String value = mapper.writeValueAsString(libraryEvent);
-
 //        batching and/or linger.ms in effect, thus returning future
         ListenableFuture<SendResult<Integer, String>> future = template.sendDefault(key, value);
         future.addCallback(new ListenableFutureCallback<SendResult<Integer, String>>() {
@@ -40,6 +40,29 @@ public class LibraryEventProducer {
                 handleSuccess(key, value, result);
             }
         });
+    }
+
+    public void sendLibraryEvent2(LibraryEvent libraryEvent) throws JsonProcessingException {
+        Integer key = libraryEvent.getLibraryEventId();
+        String value = mapper.writeValueAsString(libraryEvent);
+        ListenableFuture<SendResult<Integer, String>> future = template.sendDefault(key, value);
+        future.addCallback(result -> handleSuccess(key, value, result), ex -> handleFailure(key, value, ex));
+    }
+
+    public SendResult<Integer, String> sendLibraryEventSync(LibraryEvent libraryEvent) throws JsonProcessingException, ExecutionException, InterruptedException {
+        Integer key = libraryEvent.getLibraryEventId();
+        String value = mapper.writeValueAsString(libraryEvent);
+        SendResult<Integer, String> result = null;
+        try {
+            result = template.sendDefault(key, value).get();
+        } catch (ExecutionException | InterruptedException ex) {
+            log.error("ExecutionException/InterruptedException. Not sent. Root cause: {}", ex.getMessage());
+            throw ex;
+        } catch (Exception ex) {
+            log.error("ExecutionException/InterruptedException. Not sent. Root cause: {}", ex.getMessage());
+            throw ex;
+        }
+        return result;
     }
 
     private void handleFailure(Integer key, String value, Throwable ex) {
