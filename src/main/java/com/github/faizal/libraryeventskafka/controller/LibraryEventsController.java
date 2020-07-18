@@ -25,7 +25,7 @@ public class LibraryEventsController {
     public ResponseEntity<LibraryEvent> postLibraryEvent(@RequestBody LibraryEvent libraryEvent) throws JsonProcessingException {
 
         // invoke kaka producer
-        producer.sendLibraryEvent2(libraryEvent);
+        producer.sendLibraryEvent3(libraryEvent);
         return ResponseEntity.status(HttpStatus.CREATED).body(libraryEvent);
     }
 
