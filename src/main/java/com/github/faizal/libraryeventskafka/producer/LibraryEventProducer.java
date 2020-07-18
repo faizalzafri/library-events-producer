@@ -47,11 +47,11 @@ public class LibraryEventProducer {
         try {
             throw ex;
         } catch (Throwable throwable) {
-            log.error("Error in onFailure. {}",throwable.getMessage());
+            log.error("Error in onFailure. {}", throwable.getMessage());
         }
     }
 
     private void handleSuccess(Integer key, String value, SendResult<Integer, String> result) {
-        log.info("Sent: {} - {} : Partition: {}",key,value,result.getRecordMetadata().partition());
+        log.info("Sent: {} - {} : Partition: {}", key, value, result.getRecordMetadata().partition());
     }
 }
