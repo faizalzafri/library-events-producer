@@ -6,6 +6,8 @@ import com.github.faizal.libraryeventskafka.domain.LibraryEvent;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.common.header.Header;
+import org.apache.kafka.common.header.internals.RecordHeader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
@@ -13,6 +15,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.concurrent.ListenableFuture;
 import org.springframework.util.concurrent.ListenableFutureCallback;
 
+import java.time.Instant;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 @Component
@@ -90,6 +95,7 @@ public class LibraryEventProducer {
     }
 
     private ProducerRecord<Integer, String> buildProducerRecord(Integer key, String value, String topic) {
-        return new ProducerRecord<>(topic,key,value);
+        List<Header> headers = Arrays.asList(new RecordHeader("event-source", "handheld-scanner".getBytes()));
+        return new ProducerRecord<>(topic,null, Instant.now().getEpochSecond(),key,value,headers);
     }
 }
