@@ -51,7 +51,7 @@ class LibraryEventsControllerUnitTest {
         String payload = mapper.writeValueAsString(libraryEvent);
 
         //when
-        doNothing().when(producer).sendLibraryEvent3(libraryEvent);
+        when(producer.sendLibraryEvent3(libraryEvent)).thenReturn(null);
 
         //then
         mockMvc.perform(
@@ -76,7 +76,7 @@ class LibraryEventsControllerUnitTest {
         String payload = mapper.writeValueAsString(libraryEvent);
 
         //when
-        doNothing().when(producer).sendLibraryEvent3(libraryEvent);
+        when(producer.sendLibraryEvent3(libraryEvent)).thenReturn(null);
 
         //then
         mockMvc.perform(
