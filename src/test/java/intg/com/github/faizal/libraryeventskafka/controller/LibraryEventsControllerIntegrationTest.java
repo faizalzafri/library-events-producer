@@ -12,6 +12,7 @@ import org.apache.kafka.common.serialization.StringDeserializer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -120,5 +121,57 @@ class LibraryEventsControllerIntegrationTest {
         //then
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         assertNotNull(response.getBody());
+    }
+
+    @Test
+    @Timeout(15)
+    void putLibraryEvent() throws JsonProcessingException {
+        //given
+        Book book = Book.builder()
+                .bookId(111)
+                .bookName("Learn Kafka")
+                .bookAuthor("Faizal")
+                .build();
+
+        LibraryEvent libraryEvent = LibraryEvent.builder()
+                .libraryEventId(786)
+                .libraryEventType(LibraryEventType.UPDATE)
+                .book(book)
+                .build();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity entity = new HttpEntity(libraryEvent, headers);
+
+        //when
+        ResponseEntity<LibraryEvent> response = restTemplate.exchange("/v1/libraryevent", HttpMethod.PUT, entity, LibraryEvent.class);
+        ConsumerRecord<Integer, String> consumerRecord = KafkaTestUtils.getSingleRecord(consumer, "library-events");
+
+        //then
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        LibraryEvent libraryEventFromKafka = mapper.readValue(consumerRecord.value(), LibraryEvent.class);
+        assertEquals(libraryEvent, libraryEventFromKafka);
+
+    }
+
+    @Test
+    public void putLibraryEvent_InvalidLibraryEventID() {
+        Book book = Book.builder()
+                .bookId(123)
+                .bookName("Learn Kafka")
+                .bookAuthor("Faizal")
+                .build();
+        LibraryEvent libraryEvent = LibraryEvent.builder()
+                .libraryEventId(null)
+                .book(book)
+                .build();
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("content-type", MediaType.APPLICATION_JSON_VALUE);
+        HttpEntity<LibraryEvent> request = new HttpEntity<>(libraryEvent, headers);
+
+        ResponseEntity<?> responseEntity = restTemplate.exchange("/v1/libraryevent", HttpMethod.PUT, request, String.class);
+
+        assertEquals(HttpStatus.BAD_REQUEST, responseEntity.getStatusCode());
     }
 }
