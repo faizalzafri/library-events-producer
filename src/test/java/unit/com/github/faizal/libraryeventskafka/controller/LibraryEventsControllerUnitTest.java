@@ -44,6 +44,7 @@ class LibraryEventsControllerUnitTest {
         LibraryEvent libraryEvent = LibraryEvent.builder()
                 .libraryEventId(null)
                 .libraryEventType(LibraryEventType.NEW)
+                .book(book)
                 .build();
 
         String payload = mapper.writeValueAsString(libraryEvent);

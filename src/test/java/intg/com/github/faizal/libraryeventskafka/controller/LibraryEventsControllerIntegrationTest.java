@@ -76,6 +76,7 @@ class LibraryEventsControllerIntegrationTest {
         LibraryEvent libraryEvent = LibraryEvent.builder()
                 .libraryEventId(null)
                 .libraryEventType(LibraryEventType.NEW)
+                .book(book)
                 .build();
 
         HttpHeaders headers = new HttpHeaders();
@@ -106,6 +107,7 @@ class LibraryEventsControllerIntegrationTest {
         LibraryEvent libraryEvent = LibraryEvent.builder()
                 .libraryEventId(null)
                 .libraryEventType(LibraryEventType.NEW)
+                .book(book)
                 .build();
 
         HttpHeaders headers = new HttpHeaders();
