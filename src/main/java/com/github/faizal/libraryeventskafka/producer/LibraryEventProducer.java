@@ -57,12 +57,13 @@ public class LibraryEventProducer {
         future.addCallback(result -> handleSuccess(key, value, result), ex -> handleFailure(key, value, ex));
     }
 
-    public void sendLibraryEvent3(LibraryEvent libraryEvent) throws JsonProcessingException {
+    public ListenableFuture<SendResult<Integer, String>> sendLibraryEvent3(LibraryEvent libraryEvent) throws JsonProcessingException {
         Integer key = libraryEvent.getLibraryEventId();
         String value = mapper.writeValueAsString(libraryEvent);
         ProducerRecord<Integer,String> record = buildProducerRecord(key,value,_TOPIC);
         ListenableFuture<SendResult<Integer, String>> future = template.send(record);
         future.addCallback(result -> handleSuccess(key, value, result), ex -> handleFailure(key, value, ex));
+        return future;
     }
 
     public SendResult<Integer, String> sendLibraryEventSync(LibraryEvent libraryEvent) throws JsonProcessingException, ExecutionException, InterruptedException {
