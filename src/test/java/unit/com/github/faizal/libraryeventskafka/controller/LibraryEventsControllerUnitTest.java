@@ -99,7 +99,7 @@ class LibraryEventsControllerUnitTest {
                 .build();
 
         LibraryEvent libraryEvent = LibraryEvent.builder()
-                .libraryEventId(786)
+                .libraryEventId("ASDC565S")
                 .libraryEventType(LibraryEventType.UPDATE)
                 .book(book)
                 .build();

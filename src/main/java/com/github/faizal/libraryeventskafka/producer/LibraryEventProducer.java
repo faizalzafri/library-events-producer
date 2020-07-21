@@ -27,54 +27,51 @@ public class LibraryEventProducer {
     private final static String _TOPIC = "library-events";
 
     @Autowired
-    private KafkaTemplate<Integer, String> template;
+    private KafkaTemplate<String, String> template;
 
     @Autowired
     private ObjectMapper mapper;
 
     public void sendLibraryEvent(LibraryEvent libraryEvent) throws JsonProcessingException {
-        Integer key = libraryEvent.getLibraryEventId();
+        String key = libraryEvent.getLibraryEventId();
         String value = mapper.writeValueAsString(libraryEvent);
 //        batching and/or linger.ms in effect, thus returning future
-        ListenableFuture<SendResult<Integer, String>> future = template.sendDefault(key, value);
-        future.addCallback(new ListenableFutureCallback<SendResult<Integer, String>>() {
+        ListenableFuture<SendResult<String, String>> future = template.sendDefault(key, value);
+        future.addCallback(new ListenableFutureCallback<SendResult<String, String>>() {
             @Override
             public void onFailure(Throwable ex) {
                 handleFailure(key, value, ex);
             }
 
             @Override
-            public void onSuccess(SendResult<Integer, String> result) {
+            public void onSuccess(SendResult<String, String> result) {
                 handleSuccess(key, value, result);
             }
         });
     }
 
     public void sendLibraryEvent2(LibraryEvent libraryEvent) throws JsonProcessingException {
-        Integer key = libraryEvent.getLibraryEventId();
+        String key = libraryEvent.getLibraryEventId();
         String value = mapper.writeValueAsString(libraryEvent);
-        ListenableFuture<SendResult<Integer, String>> future = template.sendDefault(key, value);
+        ListenableFuture<SendResult<String, String>> future = template.sendDefault(key, value);
         future.addCallback(result -> handleSuccess(key, value, result), ex -> handleFailure(key, value, ex));
     }
 
-    public ListenableFuture<SendResult<Integer, String>> sendLibraryEvent3(LibraryEvent libraryEvent) throws JsonProcessingException {
-        Integer key = libraryEvent.getLibraryEventId();
+    public ListenableFuture<SendResult<String, String>> sendLibraryEvent3(LibraryEvent libraryEvent) throws JsonProcessingException {
+        String key = libraryEvent.getLibraryEventId();
         String value = mapper.writeValueAsString(libraryEvent);
-        ProducerRecord<Integer,String> record = buildProducerRecord(key,value,_TOPIC);
-        ListenableFuture<SendResult<Integer, String>> future = template.send(record);
+        ProducerRecord<String,String> record = buildProducerRecord(key,value,_TOPIC);
+        ListenableFuture<SendResult<String, String>> future = template.send(record);
         future.addCallback(result -> handleSuccess(key, value, result), ex -> handleFailure(key, value, ex));
         return future;
     }
 
-    public SendResult<Integer, String> sendLibraryEventSync(LibraryEvent libraryEvent) throws JsonProcessingException, ExecutionException, InterruptedException {
-        Integer key = libraryEvent.getLibraryEventId();
+    public SendResult<String, String> sendLibraryEventSync(LibraryEvent libraryEvent) throws JsonProcessingException, ExecutionException, InterruptedException {
+        String key = libraryEvent.getLibraryEventId();
         String value = mapper.writeValueAsString(libraryEvent);
-        SendResult<Integer, String> result = null;
+        SendResult<String, String> result = null;
         try {
             result = template.sendDefault(key, value).get();
-        } catch (ExecutionException | InterruptedException ex) {
-            log.error("ExecutionException/InterruptedException. Not sent. Root cause: {}", ex.getMessage());
-            throw ex;
         } catch (Exception ex) {
             log.error("ExecutionException/InterruptedException. Not sent. Root cause: {}", ex.getMessage());
             throw ex;
@@ -82,7 +79,7 @@ public class LibraryEventProducer {
         return result;
     }
 
-    private void handleFailure(Integer key, String value, Throwable ex) {
+    private void handleFailure(String key, String value, Throwable ex) {
         log.error("Not sent. Root cause: {}", ex.getMessage());
         try {
             throw ex;
@@ -91,11 +88,11 @@ public class LibraryEventProducer {
         }
     }
 
-    private void handleSuccess(Integer key, String value, SendResult<Integer, String> result) {
+    private void handleSuccess(String key, String value, SendResult<String, String> result) {
         log.info("Sent: {} - {} : Partition: {}", key, value, result.getRecordMetadata().partition());
     }
 
-    private ProducerRecord<Integer, String> buildProducerRecord(Integer key, String value, String topic) {
+    private ProducerRecord<String, String> buildProducerRecord(String key, String value, String topic) {
         List<Header> headers = Arrays.asList(new RecordHeader("event-source", "handheld-scanner".getBytes()));
         return new ProducerRecord<>(topic,null, Instant.now().getEpochSecond(),key,value,headers);
     }

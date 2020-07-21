@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.kafka.support.SendResult;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -36,7 +37,7 @@ public class LibraryEventsController {
     public ResponseEntity<LibraryEvent> postLibraryEventSync(@RequestBody LibraryEvent libraryEvent) throws InterruptedException, ExecutionException, JsonProcessingException {
 
         // invoke kaka producer
-        SendResult<Integer, String> result = producer.sendLibraryEventSync(libraryEvent);
+        SendResult<String, String> result = producer.sendLibraryEventSync(libraryEvent);
         log.info("Result: {}", result.toString());
         return ResponseEntity.status(HttpStatus.CREATED).body(libraryEvent);
     }
@@ -45,7 +46,7 @@ public class LibraryEventsController {
     @PutMapping("/v1/libraryevent")
     public ResponseEntity<?> putLibraryEvent(@RequestBody @Valid LibraryEvent libraryEvent) throws JsonProcessingException {
 
-        if(Objects.isNull(libraryEvent.getLibraryEventId()))
+        if(StringUtils.isEmpty(libraryEvent.getLibraryEventId()))
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Provide libraryEvent");
         libraryEvent.setLibraryEventType(LibraryEventType.UPDATE);
         producer.sendLibraryEvent3(libraryEvent);

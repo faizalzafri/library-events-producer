@@ -55,7 +55,7 @@ class LibraryEventsControllerIntegrationTest {
                 new HashMap<>(KafkaTestUtils
                         .consumerProps("intg-test", String.valueOf(true), embeddedKafkaBroker));
 
-        consumer = new DefaultKafkaConsumerFactory<>(config, new IntegerDeserializer(), new StringDeserializer()).createConsumer();
+        consumer = new DefaultKafkaConsumerFactory<>(config, new StringDeserializer(), new StringDeserializer()).createConsumer();
         embeddedKafkaBroker.consumeFromAllEmbeddedTopics(consumer);
 
     }
@@ -134,7 +134,7 @@ class LibraryEventsControllerIntegrationTest {
                 .build();
 
         LibraryEvent libraryEvent = LibraryEvent.builder()
-                .libraryEventId(786)
+                .libraryEventId("ASDC565S")
                 .libraryEventType(LibraryEventType.UPDATE)
                 .book(book)
                 .build();
@@ -145,7 +145,7 @@ class LibraryEventsControllerIntegrationTest {
 
         //when
         ResponseEntity<LibraryEvent> response = restTemplate.exchange("/v1/libraryevent", HttpMethod.PUT, entity, LibraryEvent.class);
-        ConsumerRecord<Integer, String> consumerRecord = KafkaTestUtils.getSingleRecord(consumer, "library-events");
+        ConsumerRecord<String, String> consumerRecord = KafkaTestUtils.getSingleRecord(consumer, "library-events");
 
         //then
         assertEquals(HttpStatus.OK, response.getStatusCode());

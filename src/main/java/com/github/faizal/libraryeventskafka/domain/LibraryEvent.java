@@ -13,7 +13,7 @@ import javax.validation.constraints.NotNull;
 @Builder
 public class LibraryEvent {
 
-    private Integer libraryEventId;
+    private String libraryEventId;
     private LibraryEventType libraryEventType;
     @NotNull
     private Book book;

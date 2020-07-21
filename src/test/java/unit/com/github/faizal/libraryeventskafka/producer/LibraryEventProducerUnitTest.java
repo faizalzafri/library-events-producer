@@ -78,19 +78,19 @@ class LibraryEventProducerUnitTest {
         String record = mapper.writeValueAsString(libraryEvent);
         SettableListenableFuture future = new SettableListenableFuture();
 
-        ProducerRecord<Integer, String> producerRecord = new ProducerRecord("library-events", libraryEvent.getLibraryEventId(),record );
+        ProducerRecord<String, String> producerRecord = new ProducerRecord("library-events", libraryEvent.getLibraryEventId(),record );
         RecordMetadata recordMetadata = new RecordMetadata(new TopicPartition("library-events", 1),
                 1,1,342,System.currentTimeMillis(), 1, 2);
-        SendResult<Integer, String> sendResult = new SendResult<Integer, String>(producerRecord,recordMetadata);
+        SendResult<String, String> sendResult = new SendResult<String, String>(producerRecord,recordMetadata);
 
         future.set(sendResult);
 
         //when
         when(template.send(isA(ProducerRecord.class))).thenReturn(future);
-        Future<SendResult<Integer,String>> listenableFuture =  producer.sendLibraryEvent3(libraryEvent);
+        Future<SendResult<String,String>> listenableFuture =  producer.sendLibraryEvent3(libraryEvent);
 
         //then
-        SendResult<Integer,String> sendResult1 = listenableFuture.get();
+        SendResult<String,String> sendResult1 = listenableFuture.get();
         assert sendResult1.getRecordMetadata().partition()==1;
 
     }

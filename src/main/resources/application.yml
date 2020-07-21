@@ -9,7 +9,7 @@ spring:
       default-topic: library-events
     producer:
       bootstrap-servers: localhost:9092
-      key-serializer: org.apache.kafka.common.serialization.IntegerSerializer
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
       acks: all
       retries: 5
@@ -22,7 +22,7 @@ spring:
   kafka:
     producer:
       bootstrap-servers: dev:9092
-      key-serializer: org.apache.kafka.common.serialization.IntegerSerializer
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
 ---
 spring:
@@ -30,5 +30,5 @@ spring:
   kafka:
     producer:
       bootstrap-servers: prod:9092
-      key-serializer: org.apache.kafka.common.serialization.IntegerSerializer
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
